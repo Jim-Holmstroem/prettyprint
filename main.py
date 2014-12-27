@@ -75,9 +75,9 @@ def syntax():
     ).setParseAction(composition(str, ''.join))
     # FIXME unicode string (how is this handled in python 3?) important to be
     # able to destinguice between unicode and not
-    # unicode_string = (
-    #    Literal('u').suppress() + string_
-    # )
+    unicode_string = (
+        Literal('u').suppress() + string_
+    ).setParseAction(composition(unicode, u''.join))
     integer = (
         Optional(Literal('-'), default='+') + Word(nums)
     ).setParseAction(composition(int, ''.join))
@@ -89,7 +89,7 @@ def syntax():
     ).setParseAction(composition(float, ''.join, partial(map, str)))
     # TODO complex
     number = float_ | long_ | integer
-    atom = string_ | number
+    atom = unicode_string | string_ | number
 
     expression = Forward()  # FIXME name of this?
     dictionary = Group(
@@ -119,4 +119,5 @@ def syntax():
 
     return expression
 
-print(syntax().parseString('{23: ["234", [1L,2.0,-2, "3"]]}', parseAll=True).asList()[0])
+#print(syntax().parseString('{[u"234", \'123\', [1L,(2.0, .2, 1.),-2, "3"]]}', parseAll=True).asList()[0])
+print(syntax().parseString('[{1:1}, {3:2}]').asList()[0])
