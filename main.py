@@ -1,5 +1,7 @@
 from __future__ import division, print_function
 
+from functools import partial, wraps
+
 import inspect
 import sys
 
@@ -27,7 +29,6 @@ def composition(f, *gs):
     )
 
 
-
 def parse_action(f):
     """
     Decorator for pyparsing parse actions to ease debugging.
@@ -47,7 +48,7 @@ def parse_action(f):
     if num_args > 3:
         raise ValueError('Input function must take at most 3 parameters.')
 
-    @functools.wraps(f)
+    @wraps(f)
     def action(*args):
         if len(args) < num_args:
             if action.exc_info:
@@ -55,11 +56,12 @@ def parse_action(f):
         action.exc_info = None
         try:
             return f(*args[:-(num_args + 1):-1])
-        except TypeError as e:
+        except TypeError:
             action.exc_info = sys.exc_info()
             raise
 
     action.exc_info = None
+
     return action
 
 
@@ -75,7 +77,7 @@ def syntax():
     # able to destinguice between unicode and not
     # unicode_string = (
     #    Literal('u').suppress() + string_
-    #)
+    # )
     integer = (
         Optional(Literal('-'), default='+') + Word(nums)
     ).setParseAction(composition(int, ''.join))
