@@ -16,6 +16,7 @@ from pyparsing import (
     nums,
     alphas,
     alphanums,
+    oneOf,
 )
 
 
@@ -79,7 +80,7 @@ def syntax():
         Literal('u').suppress() + string_
     ).setParseAction(composition(unicode, u''.join))
     integer = (
-        Optional(oneOf(['+', '-'), default='+') + Word(nums)
+        Optional(oneOf(['+', '-']), default='+') + Word(nums)
     ).setParseAction(composition(int, ''.join))
     long_ = (
         integer + Literal('L').suppress()
